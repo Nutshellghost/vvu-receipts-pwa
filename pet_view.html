@@ -8,19 +8,21 @@ function h(s){return s?document.createElement('div').appendChild(document.create
 function R(p){
   document.getElementById('e').textContent=e2(p.species);
   document.getElementById('n').textContent=p.petName||'Pet';
-  document.getElementById('s').textContent='Case: '+(p.caseNo||'')+' · VVU';
+  document.getElementById('s').textContent='Case Sheet: '+(p.caseNo||'')+(p.visitCount?' · '+(p.visitCount>1?p.visitCount+' visits':(p.visitCount+' visit')):'')+' · VVU';
   var o='<div style="background:#fff;border-radius:10px;margin:0 0 10px;padding:14px;box-shadow:0 2px 10px rgba(0,0,0,.05)"><div style="display:flex;align-items:center;gap:10px"><div style="font-size:32px">'+e2(p.species)+'</div><div><b style="font-size:17px">'+h(p.petName)+'</b><br><span style="font-size:12px;color:#767676">'+[p.species,p.breed].filter(Boolean).join(' · ')+'</span></div></div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:8px">';
   if(p.age)o+='<span style="background:#FFF0EF;color:#FF5A5F;font-size:10px;padding:2px 7px;border-radius:10px">📅 '+h(p.age)+'</span>';
   if(p.sex)o+='<span style="background:#FFF0EF;color:#FF5A5F;font-size:10px;padding:2px 7px;border-radius:10px">'+(p.sex=='Male'?'♂️':'♀️')+' '+h(p.sex)+'</span>';
   if(p.weight)o+='<span style="background:#FFF0EF;color:#FF5A5F;font-size:10px;padding:2px 7px;border-radius:10px">⚖️ '+h(p.weight)+' kg</span>';
+  if(p.color)o+='<span style="background:#FFF0EF;color:#FF5A5F;font-size:10px;padding:2px 7px;border-radius:10px">🎨 '+h(p.color)+'</span>';
   o+='</div></div>';
-  function S(t){o+='<div style="margin:0 0 8px"><b style="font-size:13px;color:#FF5A5F;margin-bottom:4px;display:block">● '+t+'</b><div style="background:#fff;border-radius:8px;padding:10px;box-shadow:0 1px 4px rgba(0,0,0,.03)">'}
-  function R2(l,v){if(v)o+='<div style="padding:3px 0;border-bottom:1px solid #eee;font-size:12px;display:flex"><span style="width:80px;color:#767676;flex-shrink:0">'+l+'</span><span style="font-weight:500">'+h(v)+'</span></div>'}
-  function E(){o+='</div></div>'}
+  function S(t){o+='<div style="margin:0 0 8px"><b style="font-size:13px;color:#FF5A5F;margin-bottom:4px;display:block">● '+t+'</b><div style="background:#fff;border-radius:8px;padding:10px;box-shadow:0 1px 4px rgba(0,0,0,.03)">'};
+  function R2(l,v){if(v)o+='<div style="padding:3px 0;border-bottom:1px solid #eee;font-size:12px;display:flex"><span style="width:90px;color:#767676;flex-shrink:0">'+l+'</span><span style="font-weight:500">'+h(v)+'</span></div>'};
+  function E(){o+='</div></div>'};
+  if(p.caseNo||p.serialNo||p.visitCount){S('Case Sheet');R2('Case No',p.caseNo);R2('Serial No',p.serialNo);if(p.visitCount)R2('Visits',p.visitCount);E()}
   if(p.diagnosis||p.treatment||p.vetNotes){S('Dx & Tx');R2('Diagnosis',p.diagnosis);R2('Treatment',p.treatment);R2('Notes',p.vetNotes);R2('Follow-up',p.followUpDate);E()}
   if(p.medicationEntries&&p.medicationEntries.length){S('Meds');for(var i=0;i<p.medicationEntries.length;i++){var m=p.medicationEntries[i];if(m.drug)o+='<div style="padding:3px 0;border-bottom:1px solid #eee;font-size:12px"><b>'+h(m.drug)+'</b> '+[m.dosage,m.frequency,m.route,m.duration].filter(Boolean).join(' · ')+'</div>'}E()}
-  if(p.temperature||p.presentingComplaint){S('Clinical');R2('Temp',p.temperature);R2('Complaint',p.presentingComplaint);R2('History',p.history);E()}
-  if(p.ownerName||p.date){S('Receipt');R2('Date',p.date);R2('Owner',p.ownerName);R2('Location',p.location);if(p.registrationFee)o+='<div style="padding:3px 0;font-size:12px;display:flex"><span style="width:80px;color:#767676;flex-shrink:0">Fee</span><span style="font-weight:600;color:#FF5A5F">₹'+h(p.registrationFee)+'</span></div>';E()}
+  else if(p.medications){S('Meds');R2('Medications',p.medications);E()}
+  if(p.temperature||p.heartRate||p.respirationRate||p.presentingComplaint||p.history||p.clinicalSigns){S('Clinical');R2('Temp',p.temperature?(p.temperature+'°F'):'');R2('Heart Rate',p.heartRate?(p.heartRate+' bpm'):'');R2('Resp Rate',p.respirationRate?(p.respirationRate+' /min'):'');R2('Complaint',p.presentingComplaint);R2('History',p.history);R2('Signs',p.clinicalSigns);E()}
   document.getElementById('x').innerHTML=o}
 try{var w=window.location.hash.replace(/^#/,'');if(!w)document.getElementById('x').innerHTML='<div style="text-align:center;padding:30px;color:#999"><div style="font-size:40px">🔍</div><h3 style="color:#555">Scan a VVU pet QR</h3></div>';else R(JSON.parse(decodeURIComponent(atob(w))))}
 catch(e){document.getElementById('x').innerHTML='<div style="text-align:center;padding:30px;color:#999"><div style="font-size:40px">⚠️</div><h3 style="color:#D32F2F">Invalid QR</h3></div>'}
