@@ -5,7 +5,33 @@
 <script>
 function e2(s){switch((s||'').toLowerCase()){case'dog':return'🐕';case'cat':return'🐈';default:return'🐾'}}
 function h(s){return s?document.createElement('div').appendChild(document.createTextNode(s)).parentNode.innerHTML:''}
+// Compact key map (used by new QR codes generated from the Flutter app)
+var K={n:'petName',s:'species',b:'breed',a:'age',x:'sex',c:'color',w:'weight',k:'caseNo',r:'serialNo',v:'visitCount',t:'temperature',h:'heartRate',e:'respirationRate',p:'presentingComplaint',i:'history',l:'clinicalSigns',d:'diagnosis',T:'treatment',m:'medications',E:'medicationEntries',f:'followUpDate',o:'vetNotes'};
+// Compact med entry keys
+var MK={d:'drug',q:'dosage',f:'frequency',r:'route',u:'duration'};
+// Normalize payload: convert compact keys to verbose keys, support both formats
+function N(p){
+  if(!p)return p;
+  // Detect compact: presence of any short key
+  var short=p.n!==undefined||p.k!==undefined||p.d!==undefined||p.T!==undefined;
+  if(!short)return p;
+  var out={};
+  for(var src in p){
+    if(K[src])out[K[src]]=p[src];
+    else out[src]=p[src]; // pass through verbose keys if any
+  }
+  // Expand medication entries
+  if(out.medicationEntries){
+    out.medicationEntries=out.medicationEntries.map(function(m){
+      var nm={};
+      for(var k in m){nm[MK[k]||k]=m[k];}
+      return nm;
+    });
+  }
+  return out;
+}
 function R(p){
+  p=N(p);
   document.getElementById('e').textContent=e2(p.species);
   document.getElementById('n').textContent=p.petName||'Pet';
   document.getElementById('s').textContent='Case Sheet: '+(p.caseNo||'')+(p.visitCount?' · '+(p.visitCount>1?p.visitCount+' visits':(p.visitCount+' visit')):'')+' · VVU';
